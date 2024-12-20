@@ -53,10 +53,10 @@ const loginuser = async (req, res) => {
 
     return res
       .cookie("hrtoken", token, {
-        httpOnly: false,
+        httpOnly: true,
         secure: false,
-        sameSite: "strict",
-        maxAge: 60 * 60 * 2,
+        sameSite: "none",
+        maxAge: 60 * 60 * 2 * 1000,
       })
       .json({
         message: "login successfully",
