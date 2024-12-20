@@ -68,9 +68,16 @@ const updateEmployee = async (req, res) => {
   try {
     const { id } = req.params
     const data = req.body
+
+    if (!id) {
+      return res.json({ message: 'employee not found', success: false })
+    }
+
+    const info = req.file ? { ...data, pic: req.file.path } : data
+
     const updatedEmployee = await employeeModel.findOneAndUpdate(
       { _id: id },
-      data,
+      info,
       { new: true }
     )
     return res.json({
@@ -118,7 +125,7 @@ const searchEmployee = async (req, res) => {
           { e_name: { $regex: search, $options: 'i' } },
           { e_email: { $regex: search, $options: 'i' } },
           { e_position: { $regex: search, $options: 'i' } },
-          { e_dept: { $regex: search, $options: 'i' } },
+          { e_dept: { $regex: search, $options: 'i' } }
         ]
       }
     }

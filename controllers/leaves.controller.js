@@ -68,9 +68,16 @@ const updateLeave = async (req, res) => {
   try {
     const { id } = req.params
     const data = req.body
-    const updateLeave = await leavesModel.findOneAndUpdate({ _id: id }, data, {
+
+    if (!id) {
+      return res.json({ message: 'leave not found', success: false })
+    }
+
+    const info = req.file ? { ...data, attachment: req.file.path } : data
+    const updateLeave = await leavesModel.findOneAndUpdate({ _id: id }, info, {
       new: true
     })
+
     return res.json({
       message: 'updated successfully',
       success: true,
