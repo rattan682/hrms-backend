@@ -54,7 +54,7 @@ const loginuser = async (req, res) => {
     return res
       .cookie('hrtoken', token, {
         httpOnly: true,
-        secure: false,
+        secure: true,
         sameSite: 'Lax',
         maxAge: 60 * 60 * 2 * 1000
       })
@@ -78,7 +78,7 @@ const logout = async (req, res) => {
   try {
     res.clearCookie("hrtoken", {
       httpOnly: true,
-      secure: false, 
+      secure: true, 
       sameSite: "Lax", 
     });
 
