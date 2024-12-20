@@ -1,92 +1,92 @@
-const bcrypt = require('bcrypt')
-const userModel = require('../models/user.model')
-const { generateToken } = require('../constant')
+const bcrypt = require("bcrypt");
+const userModel = require("../models/user.model");
+const { generateToken } = require("../constant");
 
 const registerUser = async (req, res) => {
   try {
-    const { fullname, email, password } = req.body
+    const { fullname, email, password } = req.body;
     if (!email || !password || !fullname) {
-      return res.json({ message: 'All fields are required' })
+      return res.json({ message: "All fields are required" });
     } else {
-      const haspassword = await bcrypt.hash(password, 10)
-      const alreadyUser = await userModel.findOne({ email: email })
+      const haspassword = await bcrypt.hash(password, 10);
+      const alreadyUser = await userModel.findOne({ email: email });
       if (alreadyUser) {
-        throw 'user is already exists'
+        throw "user is already exists";
       }
       await userModel.create({
         email,
         password: haspassword,
-        fullname
-      })
+        fullname,
+      });
 
       return res.json({
-        message: 'User created successfully',
+        message: "User created successfully",
         status: 201,
-        success: true
-      })
+        success: true,
+      });
     }
   } catch (error) {
-    console.log(error)
-    res.json({ message: error || 'something went error', success: false })
+    console.log(error);
+    res.json({ message: error || "something went error", success: false });
   }
-}
+};
 
 const loginuser = async (req, res) => {
   try {
-    const { email, password } = req.body
+    const { email, password } = req.body;
     if (!email || !password) {
-      throw 'all fields are required'
+      throw "all fields are required";
     }
-    const user = await userModel.findOne({ email })
+    const user = await userModel.findOne({ email });
     if (!user) {
       return res.json({
-        message: 'user not found',
+        message: "user not found",
         status: 404,
-        success: false
-      })
+        success: false,
+      });
     }
-    const comparePassword = bcrypt.compareSync(password, user?.password)
+    const comparePassword = bcrypt.compareSync(password, user?.password);
     if (!comparePassword) {
-      throw 'invalid password'
+      throw "invalid password";
     }
-    const token = await generateToken({ id: user._id })
+    const token = await generateToken({ id: user._id });
 
     return res
-      .cookie('hrtoken', token, {
+      .cookie("hrtoken", token, {
         httpOnly: true,
         secure: true,
-        sameSite: 'Lax',
-        maxAge: 60 * 60 * 2 * 1000
+        sameSite: "None",
+        maxAge: 60 * 60 * 2 * 1000,
       })
       .json({
-        message: 'login successfully',
+        message: "login successfully",
         token,
         status: 200,
-        success: true
-      })
+        success: true,
+      });
   } catch (error) {
-    console.log(error)
+    console.log(error);
     res.json({
-      message: error || 'something went wrong',
+      message: error || "something went wrong",
       status: 500,
-      success: false
-    })
+      success: false,
+    });
   }
-}
+};
 
 const logout = async (req, res) => {
   try {
     res.clearCookie("hrtoken", {
       httpOnly: true,
-      secure: true, 
-      sameSite: "Lax", 
+      secure: true,
+      sameSite: "None",
     });
 
-    res.json({message: "logout success", success: true})
+    res.json({ message: "logout success", success: true });
   } catch (error) {
-    return res.json({ message: 'something went wrong', success: false })
+    return res.json({ message: "something went wrong", success: false });
   }
-}
+};
 
 //  const getuserdata=async(req,res)=>{
 //   try {
@@ -100,5 +100,5 @@ const logout = async (req, res) => {
 module.exports = {
   registerUser,
   loginuser,
-  logout
-}
+  logout,
+};
