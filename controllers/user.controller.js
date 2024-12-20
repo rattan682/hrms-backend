@@ -78,7 +78,7 @@ const logout = async (req, res) => {
   try {
     res.clearCookie("hrtoken", {
       httpOnly: true,
-      secure: true, 
+      secure: false, 
       sameSite: "Lax", 
     });
 
