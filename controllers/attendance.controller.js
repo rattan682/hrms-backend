@@ -2,9 +2,9 @@ const attendenceModel = require("../models/attendence.model");
 
 const getAttendence = async (req, res) => {
   try {
-    const { search, status } = req.body;
+    const { search, filter } = req.body;
 
-    const attendence = await attendenceModel.aggregate([
+    const pipeline = [
       {
         $lookup: {
           from: "employees",
@@ -16,36 +16,52 @@ const getAttendence = async (req, res) => {
       {
         $unwind: "$employees",
       },
-      ...(search
-        ? [
-            {
-              $match: {
-                $or: [
-                  { "employees.e_name": { $regex: search, $options: "i" } },
-                  { "employees.e_dept": { $regex: search, $options: "i" } },
-                  { "employees.e_position": { $regex: search, $options: "i" } },
-                  { task: { $regex: search, $options: "i" } },
-                  { status: { $regex: search, $options: "i" } }, 
-                ],
-              },
-            },
-          ]
-        : []),
-    ]);
+    ];
 
-    return res.json({
-      message: "attendence listed successfully",
+    if (search) {
+      pipeline.push({
+        $match: {
+          $or: [
+            { "employees.e_name": { $regex: search, $options: "i" } },
+            { "employees.e_dept": { $regex: search, $options: "i" } },
+            { "employees.e_position": { $regex: search, $options: "i" } },
+            { task: { $regex: search, $options: "i" } },
+            { status: { $regex: search, $options: "i" } },
+          ],
+        },
+      });
+    }
+
+    if (filter && typeof filter === "object") {
+      const filterConditions = Object.entries(filter).map(([key, value]) => ({
+        [key]: { $regex: value, $options: "i" },
+      }));
+
+      if (filterConditions.length > 0) {
+        pipeline.push({
+          $match: {
+            $and: filterConditions,
+          },
+        });
+      }
+    }
+
+    const attendence = await attendenceModel.aggregate(pipeline);
+
+    return res.status(200).json({
+      message: "Attendance listed successfully",
       success: true,
       details: attendence,
     });
   } catch (error) {
-    console.log(error.message);
-    return res.json({
-      message: error || "something went wrong",
+    console.error("Error fetching attendance:", error.message, error.stack);
+    return res.status(500).json({
+      message: "An error occurred while fetching attendance",
       success: false,
     });
   }
 };
+
 
 const getAttendee = async (req, res) => {
   try {
@@ -106,29 +122,9 @@ const deleteAttendence = async (req, res) => {
   }
 };
 
-const filterAttendence = async (req, res) => {
-  try {
-    
-    const attendence = await attendenceModel.find(query)
-
-    return res.json({
-      message: 'attendence fetched successfully',
-      success: true,
-      details: attendence
-    })
-  } catch (error) {
-    return res.status(500).json({
-      message: error.message || 'Something went wrong',
-      success: false
-    })
-  }
-}
-
 module.exports = {
   getAttendence,
   getAttendee,
   updateAttendence,
-  deleteAttendence,
-  searchAttendence,
-  filterAttendence
+  deleteAttendence
 };

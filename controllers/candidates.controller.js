@@ -29,20 +29,17 @@ const createCandidate = async (req, res) => {
 }
 const getCandidates = async (req, res) => {
   try {
-    const { status, position, search } = req.body
+    const { filter, search } = req.body
 
     let query = {}
 
-    if (status) {
-      query.status = status
-    }
-
-    if (position) {
-      query.c_position = position
+    if (filter) {
+      query = { ...filter }
     }
 
     if (search) {
       query = {
+        ...query,
         $or: [
           { c_name: { $regex: search, $options: 'i' } },
           { c_email: { $regex: search, $options: 'i' } },
@@ -87,8 +84,8 @@ const updateCandidate = async (req, res) => {
     const { id } = req.params
     const data = req.body
 
-    if(!id){
-      return res.json({message: "no user found", success: false})
+    if (!id) {
+      return res.json({ message: 'no user found', success: false })
     }
 
     if (data?.status == 'selected') {

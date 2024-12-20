@@ -31,7 +31,32 @@ const createLeave = async (req, res) => {
 
 const getLeaves = async (req, res) => {
   try {
-    const leaves = await leavesModel.find({})
+    const { date, search, filter } = req.query
+
+    let query = {}
+
+    if (filter) {
+      query = { ...filter }
+    }
+
+    if (search) {
+      query = {
+        ...query,
+        $or: [
+          { name: { $regex: search, $options: 'i' } },
+          { designation: { $regex: search, $options: 'i' } },
+          { status: { $regex: search, $options: 'i' } }
+        ]
+      }
+    }
+
+    if (date) {
+      const selectedDate = new Date(date)
+      query.startdate = { $lte: selectedDate }
+      query.enddate = { $gte: selectedDate }
+    }
+
+    const leaves = await leavesModel.find(query)
     return res.json({
       message: 'leaves listed successfully',
       success: true,
@@ -110,74 +135,10 @@ const deleteLeave = async (req, res) => {
   }
 }
 
-const leaveFilter = async (req, res) => {
-  try {
-    const { date } = req.query
-    const { status } = req.body
-
-    let query = {}
-
-    if (date) {
-      const selectedDate = new Date(date)
-      query.startdate = { $lte: selectedDate }
-      query.enddate = { $gte: selectedDate }
-    }
-
-    if (status) {
-      query.status = status
-    }
-
-    const leaves = await leavesModel.find(query)
-
-    return res.json({
-      message: 'Leaves fetched successfully',
-      success: true,
-      details: leaves
-    })
-  } catch (error) {
-    return res.status(500).json({
-      message: error.message || 'Something went wrong',
-      success: false
-    })
-  }
-}
-
-const searchLeaves = async (req, res) => {
-  try {
-    const { search } = req.body
-
-    let query = {}
-    if (search) {
-      query = {
-        $or: [
-          { name: { $regex: search, $options: 'i' } },
-          { designation: { $regex: search, $options: 'i' } },
-          { status: { $regex: search, $options: 'i' } }
-        ]
-      }
-    }
-
-    const leaves = await leavesModel.find(query)
-
-    return res.json({
-      message: 'leaves are listed',
-      success: true,
-      details: leaves
-    })
-  } catch (error) {
-    return res.json({
-      message: error || 'something went wrong',
-      success: false
-    })
-  }
-}
-
 module.exports = {
   createLeave,
   getLeaves,
   getLeave,
   updateLeave,
-  deleteLeave,
-  leaveFilter,
-  searchLeaves
+  deleteLeave
 }

@@ -8,7 +8,7 @@ const {
 } = require("../controllers/candidates.controller");
 const router = express.Router();
 
-router.get("/getall", getCandidates);
+router.post("/getall", getCandidates);
 router.get("/getone/:id", getCandidate);
 router.delete("/deleteone/:id", deleteCandidate);
 router.patch("/update/:id", updateCandidate);
