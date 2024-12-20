@@ -2,7 +2,7 @@ const attendenceModel = require("../models/attendence.model");
 
 const getAttendence = async (req, res) => {
   try {
-    const attendence = await attendenceModel.find({});
+    const attendence = await attendenceModel.find({}).populate('e_id');
     return res.json({
       message: "attendence listed successfully",
       success: true,
@@ -20,7 +20,7 @@ const getAttendence = async (req, res) => {
 const getAttendee = async (req, res) => {
   try {
     const { id } = req.params;
-    const attendee = await attendenceModel.findOne({ _id: id });
+    const attendee = await attendenceModel.findOne({ _id: id }).populate('e_id');
     return res.json({
       message: "success",
       success: true,
@@ -76,9 +76,83 @@ const deleteAttendence = async (req, res) => {
   }
 };
 
+const searchAttendence = async (req, res) => {
+  try {
+    const { search } = req.body;
+
+    const attendence = await attendenceModel.aggregate([
+      {
+        $lookup: {
+          from: "employees",
+          localField: "e_id",
+          foreignField: "_id",
+          as: "employees",
+        },
+      },
+      {
+        $unwind: "$employees",
+      },
+      ...(search
+        ? [
+            {
+              $match: {
+                $or: [
+                  { "employees.e_name": { $regex: search, $options: "i" } },
+                  { "employees.e_dept": { $regex: search, $options: "i" } },
+                  { "employees.e_position": { $regex: search, $options: "i" } },
+                  { task: { $regex: search, $options: "i" } },
+                  { status: { $regex: search, $options: "i" } }, 
+                ],
+              },
+            },
+          ]
+        : []),
+    ]);
+
+    return res.json({
+      message: "Attendance listed successfully",
+      success: true,
+      details: attendence,
+    });
+  } catch (error) {
+    console.error(error.message);
+    return res.json({
+      message: error.message || "Something went wrong",
+      success: false,
+    });
+  }
+};
+
+const filterAttendence = async (req, res) => {
+  try {
+    const { status } = req.body
+
+    let query = {}
+
+    if (status) {
+      query.status = status
+    }
+
+    const attendence = await attendenceModel.find(query)
+
+    return res.json({
+      message: 'attendence fetched successfully',
+      success: true,
+      details: attendence
+    })
+  } catch (error) {
+    return res.status(500).json({
+      message: error.message || 'Something went wrong',
+      success: false
+    })
+  }
+}
+
 module.exports = {
   getAttendence,
   getAttendee,
   updateAttendence,
   deleteAttendence,
+  searchAttendence,
+  filterAttendence
 };
