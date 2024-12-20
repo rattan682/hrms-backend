@@ -17,7 +17,7 @@ connectDb();
 
 app.use(
   cors({
-    origin: "http://localhost:5173",
+    origin: "https://hr-frontend-ui.vercel.app",
     credentials: true,
   })
 );
