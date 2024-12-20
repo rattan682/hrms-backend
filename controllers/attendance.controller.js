@@ -62,11 +62,12 @@ const getAttendence = async (req, res) => {
   }
 };
 
-
 const getAttendee = async (req, res) => {
   try {
     const { id } = req.params;
-    const attendee = await attendenceModel.findOne({ _id: id }).populate('e_id');
+    const attendee = await attendenceModel
+      .findOne({ _id: id })
+      .populate("e_id");
     return res.json({
       message: "success",
       success: true,
@@ -107,7 +108,9 @@ const updateAttendence = async (req, res) => {
 const deleteAttendence = async (req, res) => {
   try {
     const { id } = req.params;
-    const deletedAttendence = await attendenceModel.findOneAndDelete({ _id: id });
+    const deletedAttendence = await attendenceModel.findOneAndDelete({
+      _id: id,
+    });
     return res.json({
       message: "deleted attendance successfully",
       success: true,
@@ -126,5 +129,5 @@ module.exports = {
   getAttendence,
   getAttendee,
   updateAttendence,
-  deleteAttendence
+  deleteAttendence,
 };

@@ -51,9 +51,11 @@ const loginuser = async (req, res) => {
     }
     const token = await generateToken({ id: user._id });
 
-    return res.cookie("hr-token", token, {
-        httpOnly: true,
+    return res
+      .cookie("hrtoken", token, {
+        httpOnly: false,
         secure: false,
+        sameSite: "strict",
         maxAge: 60 * 60 * 2,
       })
       .json({
@@ -64,7 +66,11 @@ const loginuser = async (req, res) => {
       });
   } catch (error) {
     console.log(error);
-    res.json({ message:error||"something went wrong",status: 500, success: false });
+    res.json({
+      message: error || "something went wrong",
+      status: 500,
+      success: false,
+    });
   }
 };
 

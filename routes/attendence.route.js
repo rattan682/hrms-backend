@@ -1,4 +1,4 @@
-const express = require('express')
+const express = require("express");
 const {
   getAttendence,
   getAttendee,
@@ -12,4 +12,4 @@ router.get('/getone/:id', getAttendee)
 router.delete('/deleteone/:id', deleteAttendence)
 router.patch('/update/:id', updateAttendence)
 
-module.exports = router
+module.exports = router;
