@@ -88,7 +88,7 @@ const updateCandidate = async (req, res) => {
       return res.json({ message: 'no user found', success: false })
     }
 
-    if (data?.status == 'selected') {
+    if (data?.status == 'Selected') {
       await employeeModel.create({
         e_name: data?.name,
         e_email: data?.c_email,
