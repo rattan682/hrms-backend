@@ -29,7 +29,29 @@ const createCandidate = async (req, res) => {
 }
 const getCandidates = async (req, res) => {
   try {
-    const candidates = await candidateModel.find({})
+    const { status, position, search } = req.body
+
+    let query = {}
+
+    if (status) {
+      query.status = status
+    }
+
+    if (position) {
+      query.c_position = position
+    }
+
+    if (search) {
+      query = {
+        $or: [
+          { c_name: { $regex: search, $options: 'i' } },
+          { c_email: { $regex: search, $options: 'i' } },
+          { c_position: { $regex: search, $options: 'i' } }
+        ]
+      }
+    }
+
+    const candidates = await candidateModel.find(query)
     return res.json({
       message: 'candidates listed successfully',
       success: true,
@@ -115,71 +137,10 @@ const deleteCandidate = async (req, res) => {
   }
 }
 
-const searchCandidate = async (req, res) => {
-  try {
-    const { search } = req.body
-
-    let query = {}
-    if (search) {
-      query = {
-        $or: [
-          { c_name: { $regex: search, $options: 'i' } },
-          { c_email: { $regex: search, $options: 'i' } },
-          { c_position: { $regex: search, $options: 'i' } }
-        ]
-      }
-    }
-
-    const candidates = await candidateModel.find(query)
-
-    return res.json({
-      message: 'candidates are listed',
-      success: true,
-      details: candidates
-    })
-  } catch (error) {
-    return res.json({
-      message: error || 'something went wrong',
-      success: false
-    })
-  }
-}
-
-const filterCandidate = async (req, res) => {
-  try {
-    const { status, position } = req.body
-
-    let query = {}
-
-    if (status) {
-      query.status = status
-    }
-
-    if (position) {
-      query.c_position = position
-    }
-
-    const candidate = await candidateModel.find(query)
-
-    return res.json({
-      message: 'candidate fetched successfully',
-      success: true,
-      details: candidate
-    })
-  } catch (error) {
-    return res.status(500).json({
-      message: error.message || 'Something went wrong',
-      success: false
-    })
-  }
-}
-
 module.exports = {
   createCandidate,
   getCandidates,
   getCandidate,
   updateCandidate,
-  deleteCandidate,
-  searchCandidate,
-  filterCandidate
+  deleteCandidate
 }

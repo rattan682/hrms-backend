@@ -33,7 +33,27 @@ const createEmployee = async (req, res) => {
 }
 const getEmployees = async (req, res) => {
   try {
-    const employees = await employeeModel.find({})
+    const { search, filter } = req.body
+
+    let query = {}
+
+    if (filter) {
+      query = { ...query, ...filter }
+    }
+
+    if (search) {
+      query = {
+        ...query,
+        $or: [
+          { e_name: { $regex: search, $options: 'i' } },
+          { e_email: { $regex: search, $options: 'i' } },
+          { e_position: { $regex: search, $options: 'i' } },
+          { e_dept: { $regex: search, $options: 'i' } }
+        ]
+      }
+    }
+
+    const employees = await employeeModel.find(query)
     return res.json({
       message: 'employees listed successfully',
       success: true,
@@ -114,68 +134,10 @@ const deleteEmployee = async (req, res) => {
   }
 }
 
-const searchEmployee = async (req, res) => {
-  try {
-    const { search } = req.body
-
-    let query = {}
-    if (search) {
-      query = {
-        $or: [
-          { e_name: { $regex: search, $options: 'i' } },
-          { e_email: { $regex: search, $options: 'i' } },
-          { e_position: { $regex: search, $options: 'i' } },
-          { e_dept: { $regex: search, $options: 'i' } }
-        ]
-      }
-    }
-
-    const employees = await employeeModel.find(query)
-
-    return res.json({
-      message: 'candidates are listed',
-      success: true,
-      details: employees
-    })
-  } catch (error) {
-    return res.json({
-      message: error || 'something went wrong',
-      success: false
-    })
-  }
-}
-
-const filterEmployee = async (req, res) => {
-  try {
-    const { dept } = req.body
-
-    let query = {}
-
-    if (dept) {
-      query.e_dept = dept
-    }
-
-    const employees = await employeeModel.find(query)
-
-    return res.json({
-      message: 'employees fetched successfully',
-      success: true,
-      details: employees
-    })
-  } catch (error) {
-    return res.status(500).json({
-      message: error.message || 'Something went wrong',
-      success: false
-    })
-  }
-}
-
 module.exports = {
   createEmployee,
   getEmployees,
   getEmployee,
   updateEmployee,
-  deleteEmployee,
-  searchEmployee,
-  filterEmployee
+  deleteEmployee
 }
