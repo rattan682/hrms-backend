@@ -29,6 +29,9 @@ app.use("/candidates", middleware, upload.single("resume"), candidatesRouter);
 app.use("/employees", middleware, upload.single("pic"), employeesRouter);
 app.use("/attendence", middleware, attendenceRouter);
 app.use("/leaves", middleware, upload.single("attachment"), leaveRouter);
+app.get("/verify", middleware, (req, res) => {
+  return res.json({ success: true });
+});
 
 app.listen(process.env.PORT, () => {
   console.log("server is up");

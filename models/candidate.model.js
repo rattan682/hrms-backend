@@ -1,8 +1,8 @@
-const mongoose = require('mongoose')
+const mongoose = require("mongoose");
 const candidateModel = new mongoose.Schema({
   srnumber: {
     type: Number,
-    unique: true
+    unique: true,
   },
   c_name: String,
   c_email: String,
@@ -10,24 +10,24 @@ const candidateModel = new mongoose.Schema({
   c_position: String,
   c_status: String,
   c_experience: String,
-  c_resume: String
-})
+  c_resume: String,
+});
 
-candidateSchema.pre('save', async function (next) {
+candidateModel.pre("save", async function (next) {
   if (this.isNew) {
     try {
       const lastCandidate = await mongoose
-        .model('candidate')
+        .model("candidate")
         .findOne({})
         .sort({ srnumber: -1 })
-        .exec()
+        .exec();
 
-      this.srnumber = lastCandidate ? lastCandidate.srnumber + 1 : 1
+      this.srnumber = lastCandidate ? lastCandidate.srnumber + 1 : 1;
     } catch (error) {
-      return next(error)
+      return next(error);
     }
   }
-  next()
-})
+  next();
+});
 
-module.exports = mongoose.model('candidate', candidateModel)
+module.exports = mongoose.model("candidate", candidateModel);
