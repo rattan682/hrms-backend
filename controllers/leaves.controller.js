@@ -3,7 +3,7 @@ const leavesModel = require("../models/leaves.model");
 const createLeave = async (req, res) => {
   try {
     const data = req.body;
-    const newLeave = new leavesModel(data);
+    const newLeave = new leavesModel({...data,attachment:req.file.path});
     await newLeave.save();
     return res.json({
       message: "Leave registered",

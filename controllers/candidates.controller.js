@@ -3,7 +3,7 @@ const candidateModel = require("../models/candidate.model");
 const createCandidate = async (req, res) => {
   try {
     const data = req.body;
-    const newCandidate = new candidateModel(data);
+    const newCandidate = new candidateModel({...data,c_resume:req.file.path});
     await newCandidate.save();
     return res.json({
       message: "candidate registered",
