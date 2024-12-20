@@ -54,9 +54,9 @@ const loginuser = async (req, res) => {
     return res
       .cookie("hrtoken", token, {
         httpOnly: true,
-        secure: false,
-        sameSite: "none",
-        maxAge: 60 * 60 * 2 * 1000,
+        secure: false, // Change to true if using HTTPS
+        sameSite: "Lax", // Adjusted for better compatibility with localhost
+        maxAge: 60 * 60 * 2 * 1000, // 2 hours
       })
       .json({
         message: "login successfully",
